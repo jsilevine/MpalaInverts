@@ -21,10 +21,11 @@ source("plot_utility.R") ## my personalized plotting theme and functions
 
 * 1. Abundance
 
-** 1.1 Modelling approach
+** 1.1 Modeling approach
 
 Let's start with the abundance data. The basic idea here is to fit a model which takes into account a possible correlation structure among the responses (order abundance) in order to avoid the typical pitfalls of multiple testing (i.e. fucked type 1 error rates). Because the responses are counts, we should also use some type of Poisson GLM. A nice way to accomplish both these things is to fit a Multivariate Poisson LogNormal Model. The multivariate Poisson LogNormal model is given by the following:
 
+#+BEGIN_SRC latex :results file raw :exports results :file latex.png
 \begin{equation*}
 Z_i \sim\ N(\mu_i, \Sigma)
 \end{equation*}
@@ -36,9 +37,13 @@ Y_{i,j} | Z_{i,j} \sim\ P(exp(Z_{i,j}))
 \end{equation*}
 
 
-where \(Y_{i,j}\) is the number of individuals of order \(j\) observed at site \(i\), \(\mu_i\) is the vector of expected log abundances at site \(i\) and is calculated from the covariates, \(x_i\), and estimated coefficients, \(\theta_j\). \(\Sigma\) gives the correlation structure among orders, and \(Z_i\) is referred to as the latent vector. We can fit this class of models using the =VGAM= package in R.
+where \(Y_{i,j}\) is the number of individuals of order \(j\) observed at site \(i\), \(\mu_i\) is the vector of expected log abundances at site \(i\) and is calculated from the covariates, \(x_i\), and estimated coefficients, \(\theta_j\). \(\Sigma\) gives the correlation structure among orders, and \(Z_i\) is referred to as the latent vector.
+#+END_SRC
 
-We are interested primarily in the effect of treatment on order abundance, though also need to control for the experimental design. There are several ways to do this, but the easiest is probably to estimate a fixed effect for each unique replicate (6 in total). This gives us two covariates: Treatment ('C', 'M', or 'T') and Replicate ('1N', '2N', '3N', '1S', '2S', '3S'), which we will model using an interaction between Block and Replicate -- thus giving us three covariates.
+#+RESULTS:
+[[file:latex.png]]
+
+We can fit this class of models using the =VGAM= package in R. We are interested primarily in the effect of treatment on order abundance, though also need to control for the experimental design. There are several ways to do this, but the easiest is probably to estimate a fixed effect for each unique replicate (6 in total). This gives us two covariates: Treatment ('C', 'M', or 'T') and Replicate ('1N', '2N', '3N', '1S', '2S', '3S'), which we will model using an interaction between Block and Replicate -- thus giving us three covariates.
 
 ** 1.2 Loading the data
 

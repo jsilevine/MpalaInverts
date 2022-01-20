@@ -3,34 +3,13 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2022-01-20 Thu 10:22 -->
+<!-- 2022-01-20 Thu 10:53 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Multivariate analyses for UHURU Invert data</title>
 <meta name="author" content="Jacob Levine" />
 <meta name="generator" content="Org Mode" />
 <link rel="stylesheet" type="text/css" href="rethink.css" />
-<script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-        displayAlign: "center",
-        displayIndent: "0em",
-
-        "HTML-CSS": { scale: 100,
-                        linebreaks: { automatic: "false" },
-                        webFont: "TeX"
-                       },
-        SVG: {scale: 100,
-              linebreaks: { automatic: "false" },
-              font: "TeX"},
-        NativeMML: {scale: 100},
-        TeX: { equationNumbers: {autoNumber: "AMS"},
-               MultLineWidth: "85%",
-               TagSide: "right",
-               TagIndent: ".8em"
-             }
-});
-</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML"></script>
 </head>
 <body>
 <div id="content" class="content">
@@ -39,29 +18,29 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org1842402">0. Prereqs</a></li>
-<li><a href="#org2c623e3">1. Abundance</a>
+<li><a href="#orgf9fdf84">0. Prereqs</a></li>
+<li><a href="#org9abc398">1. Abundance</a>
 <ul>
-<li><a href="#org31e4808">1.1 Modelling approach</a></li>
-<li><a href="#org4e429e3">1.2 Loading the data</a></li>
-<li><a href="#org4fd25ca">1.3 Fitting the model</a></li>
-<li><a href="#org5fdcf56">1.4 Visualizing model predictions</a></li>
+<li><a href="#org1f0458d">1.1 Modeling approach</a></li>
+<li><a href="#orga846be1">1.2 Loading the data</a></li>
+<li><a href="#orga49cdbc">1.3 Fitting the model</a></li>
+<li><a href="#org19a2577">1.4 Visualizing model predictions</a></li>
 </ul>
 </li>
-<li><a href="#org733e77b">2. Biomass</a>
+<li><a href="#org49a9572">2. Biomass</a>
 <ul>
-<li><a href="#org89da67f">2.1 Loading the data</a></li>
-<li><a href="#orgf07da77">2.2 Fitting the model</a></li>
+<li><a href="#org77982e8">2.1 Loading the data</a></li>
+<li><a href="#org31d509b">2.2 Fitting the model</a></li>
 </ul>
 </li>
-<li><a href="#orgfb65932">3. Diversity</a></li>
+<li><a href="#orga5165ce">3. Diversity</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org1842402" class="outline-2">
-<h2 id="org1842402">0. Prereqs</h2>
-<div class="outline-text-2" id="text-org1842402">
+<div id="outline-container-orgf9fdf84" class="outline-2">
+<h2 id="orgf9fdf84">0. Prereqs</h2>
+<div class="outline-text-2" id="text-orgf9fdf84">
 <p>
 Load packages and plot utility script.
 </p>
@@ -80,41 +59,32 @@ Load packages and plot utility script.
 </div>
 
 
-<div id="outline-container-org2c623e3" class="outline-2">
-<h2 id="org2c623e3">1. Abundance</h2>
-<div class="outline-text-2" id="text-org2c623e3">
+<div id="outline-container-org9abc398" class="outline-2">
+<h2 id="org9abc398">1. Abundance</h2>
+<div class="outline-text-2" id="text-org9abc398">
 </div>
-<div id="outline-container-org31e4808" class="outline-3">
-<h3 id="org31e4808">1.1 Modelling approach</h3>
-<div class="outline-text-3" id="text-org31e4808">
+<div id="outline-container-org1f0458d" class="outline-3">
+<h3 id="org1f0458d">1.1 Modeling approach</h3>
+<div class="outline-text-3" id="text-org1f0458d">
 <p>
 Let&rsquo;s start with the abundance data. The basic idea here is to fit a model which takes into account a possible correlation structure among the responses (order abundance) in order to avoid the typical pitfalls of multiple testing (i.e. fucked type 1 error rates). Because the responses are counts, we should also use some type of Poisson GLM. A nice way to accomplish both these things is to fit a Multivariate Poisson LogNormal Model. The multivariate Poisson LogNormal model is given by the following:
 </p>
 
-\begin{equation*}
-Z_i \sim\ N(\mu_i, \Sigma)
-\end{equation*}
-\begin{equation}
-Y_{i,j} | Z_{i,j} \sim\ P(exp(Z_{i,j}))
-\end{equation}
-\begin{equation*}
-\mu_i = x_i^T\theta_j
-\end{equation*}
 
-
-<p>
-where \(Y_{i,j}\) is the number of individuals of order \(j\) observed at site \(i\), \(\mu_i\) is the vector of expected log abundances at site \(i\) and is calculated from the covariates, \(x_i\), and estimated coefficients, \(\theta_j\). \(\Sigma\) gives the correlation structure among orders, and \(Z_i\) is referred to as the latent vector. We can fit this class of models using the <code>VGAM</code> package in R.
+<div id="orgd08d511" class="figure">
+<p><img src="latex.png" alt="latex.png" />
 </p>
+</div>
 
 <p>
-We are interested primarily in the effect of treatment on order abundance, though also need to control for the experimental design. There are several ways to do this, but the easiest is probably to estimate a fixed effect for each unique replicate (6 in total). This gives us two covariates: Treatment (&rsquo;C&rsquo;, &rsquo;M&rsquo;, or &rsquo;T&rsquo;) and Replicate (&rsquo;1N&rsquo;, &rsquo;2N&rsquo;, &rsquo;3N&rsquo;, &rsquo;1S&rsquo;, &rsquo;2S&rsquo;, &rsquo;3S&rsquo;), which we will model using an interaction between Block and Replicate &#x2013; thus giving us three covariates.
+We can fit this class of models using the <code>VGAM</code> package in R. We are interested primarily in the effect of treatment on order abundance, though also need to control for the experimental design. There are several ways to do this, but the easiest is probably to estimate a fixed effect for each unique replicate (6 in total). This gives us two covariates: Treatment (&rsquo;C&rsquo;, &rsquo;M&rsquo;, or &rsquo;T&rsquo;) and Replicate (&rsquo;1N&rsquo;, &rsquo;2N&rsquo;, &rsquo;3N&rsquo;, &rsquo;1S&rsquo;, &rsquo;2S&rsquo;, &rsquo;3S&rsquo;), which we will model using an interaction between Block and Replicate &#x2013; thus giving us three covariates.
 </p>
 </div>
 </div>
 
-<div id="outline-container-org4e429e3" class="outline-3">
-<h3 id="org4e429e3">1.2 Loading the data</h3>
-<div class="outline-text-3" id="text-org4e429e3">
+<div id="outline-container-orga846be1" class="outline-3">
+<h3 id="orga846be1">1.2 Loading the data</h3>
+<div class="outline-text-3" id="text-orga846be1">
 <p>
 Now we can load in some data and get it into a nice format:
 </p>
@@ -140,7 +110,7 @@ uhurua[,<span style="color: #f78c6c; font-weight: bold;">16</span>:<span style="
 </pre>
 </div>
 
-<pre class="example" id="org68eefae">
+<pre class="example" id="org9ed31be">
     Acari Aranae Blattodea Coleoptera Diptera Gatropoda Hemiptera Hymenoptera
 N1C     4     28         0         21     128         0       115        1319
 N1M     3     35         0         59      61         0       181         486
@@ -206,9 +176,9 @@ Some of the species seem to have very sparse data (Solifugae, Psocoptera, Isopod
 </div>
 </div>
 
-<div id="outline-container-org4fd25ca" class="outline-3">
-<h3 id="org4fd25ca">1.3 Fitting the model</h3>
-<div class="outline-text-3" id="text-org4fd25ca">
+<div id="outline-container-orga49cdbc" class="outline-3">
+<h3 id="orga49cdbc">1.3 Fitting the model</h3>
+<div class="outline-text-3" id="text-orga49cdbc">
 <div class="org-src-container">
 <pre class="src src-R">
 <span style="color: #676E95;">## </span><span style="color: #676E95;">make sure replicate is factor and not numeric</span>
@@ -278,7 +248,7 @@ simple_coef[,c(<span style="color: #f78c6c; font-weight: bold;">1</span>,<span s
 </pre>
 </div>
 
-<pre class="example" id="org75385ad">
+<pre class="example" id="orgf93cc42">
                            Estimate  std.error       p.value clarity
 Acari:(Intercept)        1.71873433 0.32342288  1.071261e-07       *
 Acari:BlockS            -0.20067070 0.44946657  6.552620e-01        
@@ -332,9 +302,9 @@ This should read like your standard summary output table. <code>Estimate</code> 
 </div>
 </div>
 
-<div id="outline-container-org5fdcf56" class="outline-3">
-<h3 id="org5fdcf56">1.4 Visualizing model predictions</h3>
-<div class="outline-text-3" id="text-org5fdcf56">
+<div id="outline-container-org19a2577" class="outline-3">
+<h3 id="org19a2577">1.4 Visualizing model predictions</h3>
+<div class="outline-text-3" id="text-org19a2577">
 <p>
 Lets visualize the predictions rather than the effect estimates themselves, as I think this is a bit easier to look at and interpret and it contains the same information anyways. The one tricky thing is the confidence intervals. I dont think its valid to calculate prediction intervals in this case because of the lognormal tranformation and Poisson weirdness. However I think its okay to report the Wald Confidence intervals (transformed to match the response (i.e. exponentiated)). These will probably be a bit conservative, and reflect uncertainty in the effect estimates, not the predictions, but should do the trick and I doubt anyone except maybe a statistician will take issue. Even then if we just report what we are doing it will be fine.
 </p>
@@ -394,7 +364,7 @@ plot_grid(plotlist[[<span style="color: #f78c6c; font-weight: bold;">1</span>]],
 </div>
 
 
-<div id="org79d0f02" class="figure">
+<div id="orgc91651a" class="figure">
 <p><img src="abundance_estimates.svg" alt="abundance_estimates.svg" class="org-svg" />
 </p>
 <p><span class="figure-number">Figure 1: </span>Predicted abundance by treatment and species. Lines give 95% Wald confidence intervals.</p>
@@ -408,17 +378,17 @@ I don&rsquo;t know the ecology well enough to make a nice interpretation of thes
 </div>
 </div>
 
-<div id="outline-container-org733e77b" class="outline-2">
-<h2 id="org733e77b">2. Biomass</h2>
-<div class="outline-text-2" id="text-org733e77b">
+<div id="outline-container-org49a9572" class="outline-2">
+<h2 id="org49a9572">2. Biomass</h2>
+<div class="outline-text-2" id="text-org49a9572">
 <p>
 Okay now lets apply a similar analysis to the biomass data. This is a lot more straightforward since its continuous data and therefore doesn&rsquo;t require a GLM. We can fit a multivariate linear model in base R using the standard <code>lm()</code> function, just providing multiple responses. I don&rsquo;t think its necessary to go over the model, but check out this <a href="https://en.wikipedia.org/wiki/Multivariate_normal_distribution">wikipedia page</a> for more info.
 </p>
 </div>
 
-<div id="outline-container-org89da67f" class="outline-3">
-<h3 id="org89da67f">2.1 Loading the data</h3>
-<div class="outline-text-3" id="text-org89da67f">
+<div id="outline-container-org77982e8" class="outline-3">
+<h3 id="org77982e8">2.1 Loading the data</h3>
+<div class="outline-text-3" id="text-org77982e8">
 <p>
 Let&rsquo;s first make sure the data look good.
 </p>
@@ -436,7 +406,7 @@ uhurub[,<span style="color: #f78c6c; font-weight: bold;">17</span>:<span style="
 </pre>
 </div>
 
-<pre class="example" id="org1f3781b">
+<pre class="example" id="org57fb7b4">
     Acari Aranae Blattodea Coleoptera Diptera Gatropoda Hemiptera Hymenoptera
 1  0.0093 0.1877    0.0000     0.1552  0.6248    0.0000    0.5794      0.3538
 2  0.0104 0.1621    0.0000     0.5555  0.0850    0.0000    0.9294      1.0258
@@ -502,9 +472,9 @@ Its all there!
 </div>
 </div>
 
-<div id="outline-container-orgf07da77" class="outline-3">
-<h3 id="orgf07da77">2.2 Fitting the model</h3>
-<div class="outline-text-3" id="text-orgf07da77">
+<div id="outline-container-org31d509b" class="outline-3">
+<h3 id="org31d509b">2.2 Fitting the model</h3>
+<div class="outline-text-3" id="text-org31d509b">
 <div class="org-src-container">
 <pre class="src src-R">
 biom_model <span style="color: #f78c6c;">&lt;-</span> lm(cbind(Acari,
@@ -525,7 +495,7 @@ summary(biom_model)
 </pre>
 </div>
 
-<pre class="example" id="org6eb9fe7">
+<pre class="example" id="orgfff0e2a">
 Response Acari :
 
 Call:
@@ -803,9 +773,9 @@ Looks like there aren&rsquo;t any clear trends by treatment. Not sure how to int
 </div>
 
 
-<div id="outline-container-orgfb65932" class="outline-2">
-<h2 id="orgfb65932">3. Diversity</h2>
-<div class="outline-text-2" id="text-orgfb65932">
+<div id="outline-container-orga5165ce" class="outline-2">
+<h2 id="orga5165ce">3. Diversity</h2>
+<div class="outline-text-2" id="text-orga5165ce">
 <p>
 Finally we can look at the effect of treatment on diversity. This is the simplest one because there is just a single response variable and we can just use a plain old linear model. Let&rsquo;s do it all in one step:
 </p>
@@ -820,7 +790,7 @@ summary(lm(Shan_div ~ Treatment + Block + Block:Replicate, data = uhurua))
 </pre>
 </div>
 
-<pre class="example" id="orgdc799d7">
+<pre class="example" id="org9795042">
 
 Call:
 lm(formula = Shan_div ~ Treatment + Block + Block:Replicate, 
@@ -854,7 +824,7 @@ No clear trend by treatment. Once again I wont bother plotting these results.
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Jacob Levine</p>
-<p class="date">Created: 2022-01-20 Thu 10:22</p>
+<p class="date">Created: 2022-01-20 Thu 10:53</p>
 </div>
 </body>
 </html>
